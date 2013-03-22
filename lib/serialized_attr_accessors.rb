@@ -1,4 +1,4 @@
-module SerializedAttributes
+module SerializedAttrAccessors
   def self.included(base)
     base.extend(ClassMethods)
 
@@ -43,4 +43,4 @@ module SerializedAttributes
 
 end
 
-ActiveRecord::Base.send(:include, SerializedAttributes)
+ActiveRecord::Base.send(:include, SerializedAttrAccessors)
