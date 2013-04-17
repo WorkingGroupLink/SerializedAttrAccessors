@@ -19,12 +19,12 @@ module SerializedAttrAccessors
   module ClassMethods
     #Stores list of attributes serialized
     def serialized_attribute_list
-      @parent_attribute_list ||= {:serialized_options => []}
+      @@parent_attribute_list ||= {:serialized_options => []}
     end
 
     #Gets serialized attribute currenly in use
     def current_serialized_attr
-      @curr_ser_attr ||= serialized_attribute_list.keys.first
+      @@curr_ser_attr ||= serialized_attribute_list.keys.first
     end
 
     #Generates getter and setter method with field_name and default_value (if provided else nil)
@@ -67,9 +67,9 @@ module SerializedAttrAccessors
     #end
     def for_serialized_field(fieldname)
       if block_given?
-        @curr_ser_attr = fieldname
+        @@curr_ser_attr = fieldname
         yield
-        @curr_ser_attr = serialized_attribute_list.keys.first
+        @@curr_ser_attr = serialized_attribute_list.keys.first
       else
         raise "ExpectedBlockWithAttributes"
       end
