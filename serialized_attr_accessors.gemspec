@@ -1,9 +1,9 @@
 Gem::Specification.new do |s|
   s.name = "serialized_attr_accessors"
-  s.version = "0.0.2"
-  s.date = '2012-03-23'
+  s.version = "0.0.3"
+  s.date = '2013-04-15'
   s.summary = "SerializedAttrAccessors for generating attr_accessors backed by serialized column."
-  s.description = "SerializedAttrAccessors for generating attr_accessors backed by serialized column using method  sattr_accessor "
+  s.description = "attribute accessor generator using sattr_accessor (with default field :serialized_options) or a different serialized field using for_serialized_field (with block)"
   s.authors = ["Praveen Kumar Sinha"]
   s.email = ["praveen.kumar.sinha@gmail.com"]
   s.files = ["lib/serialized_attr_accessors.rb"]
