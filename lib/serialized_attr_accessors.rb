@@ -17,6 +17,10 @@ module SerializedAttrAccessors
   end
 
   module ClassMethods
+    def s_datatypes
+      [:integer, :string, :boolean]
+    end
+
     #Stores list of attributes serialized
     def serialized_attribute_list
       @@parent_attribute_list ||= {:serialized_options => []}
@@ -27,11 +31,24 @@ module SerializedAttrAccessors
       @@curr_ser_attr ||= serialized_attribute_list.keys.first
     end
 
-    #Generates getter and setter method with field_name and default_value (if provided else nil)
+    #Generates getter and setter method with field_name (datatype and) default_value (if provided else nil)
     #Example:
+    # sattr_accessor :name, :string, "some name"
+    # sattr_accessor :roll_no, :integer, 111
+    # sattr_accessor :is_admin, :boolean, true
     # sattr_accessor :second_name, "kumar"
     # sattr_accessor :address
-    def sattr_accessor(field_name, default_value = nil)
+    def sattr_accessor(*arg)
+      field_name = arg[0]
+      if s_datatypes.include?(arg[1])
+        datatype = arg[1]
+        default_value = arg[2]
+      else
+        datatype = nil
+        default_value = arg[1]
+      end
+
+
       field_name = field_name.to_sym unless field_name.is_a?(Symbol)
 
       serialized_attribute_list[current_serialized_attr] ||= []
@@ -51,10 +68,39 @@ module SerializedAttrAccessors
       end
 
       define_method field_name do
-        (unserialized_options(fetch_parent_attribute(field_name))[field_name] || default_value)
+        field_value = unserialized_options(fetch_parent_attribute(field_name))[field_name]
+        (field_value.nil? ? default_value : field_value)
       end
 
       define_method "#{field_name.to_s}=" do |field_value|
+        if datatype.nil? #If no datatype then take value as it is
+          field_value = field_value
+        elsif datatype == :integer #If integer then convert to integer and also accept nil
+          field_value = field_value.to_i unless field_value.nil?
+        elsif datatype == :string #If string then convert to string and also accept nil
+          field_value = field_value.to_s unless field_value.nil?
+        elsif datatype == :boolean #If boolean then convert to true or false and also accept nil
+          unless  field_value.nil?
+            if [true, false].include?(field_value)
+              field_value = field_value
+            elsif (field_value.is_a?(Fixnum) or field_value.is_a?(Bignum)) #Todo: Use a regexp instead
+              field_value = ((field_value.to_i <= 0) ? false : true)
+            elsif field_value.is_a?(String)
+              temp_f = field_value.downcase.strip
+              field_value = if temp_f == "false"
+                              false
+                            elsif temp_f == "true"
+                              true
+                            elsif temp_f.to_i > 0
+                              true
+                            else
+                              false
+                            end
+            else
+              raise "InvalidValue"
+            end
+          end
+        end
         unserialized_options(fetch_parent_attribute(field_name)).merge!(field_name => field_value)
         field_value
       end
