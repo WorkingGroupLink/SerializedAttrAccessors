@@ -16,7 +16,7 @@ module SerializedAttrAccessors
 
     #Re-sets sattr_change_set
     def reset_sattr_change_set
-      self.sattr_change_set.clear
+      self.sattr_change_set.clear if self.respond_to?(:sattr_change_set)
     end
 
     base.send(:before_validation, :populate_serialized_attributes)
