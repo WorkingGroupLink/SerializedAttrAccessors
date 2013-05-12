@@ -1,5 +1,5 @@
-SerializedAttributes
-====================
+SerializedAttrAccessors
+=======================
 A gem to provide attributes(accessors) from a serialized column of ActiveRecord::Base
 
 How to use
