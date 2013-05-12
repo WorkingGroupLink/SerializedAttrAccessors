@@ -1,4 +1,5 @@
 module SerializedAttrAccessors
+
   def self.included(base)
     base.extend(ClassMethods)
 
@@ -13,7 +14,13 @@ module SerializedAttrAccessors
       end
     end
 
+    #Re-sets sattr_change_set
+    def reset_sattr_change_set
+      self.sattr_change_set.clear
+    end
+
     base.send(:before_validation, :populate_serialized_attributes)
+    base.send(:after_save, :reset_sattr_change_set)
   end
 
   module ClassMethods
@@ -57,6 +64,11 @@ module SerializedAttrAccessors
       #If attributes are not serialized then here is serialization done
       self.serialize(current_serialized_attr) unless self.serialized_attributes.keys.include?(current_serialized_attr.to_s)
 
+      #Book keeping of any value changed for any sattr
+      define_method :sattr_change_set do
+        @attr_change_set ||= {}
+      end
+
       #Defining method to fetch serialzed parent attribute (gives last found)
       define_method :fetch_parent_attribute do |filed_name|
         parent_attr = nil
@@ -69,7 +81,11 @@ module SerializedAttrAccessors
 
       define_method field_name do
         field_value = unserialized_options(fetch_parent_attribute(field_name))[field_name]
-        (field_value.nil? ? default_value : field_value)
+        final_value = (field_value.nil? ? default_value : field_value)
+
+        #Updates sattr_change_set if field_name is not already present in it
+        send(:sattr_change_set)[field_name.to_s] = final_value unless send(:sattr_change_set).include?(field_name.to_s)
+        final_value
       end
 
       define_method "#{field_name.to_s}=" do |field_value|
@@ -101,6 +117,17 @@ module SerializedAttrAccessors
             end
           end
         end
+
+        #Recording sattr value if it is able to respond to ActiveModel::Dirty's changed_attributes
+        if send("respond_to?", "changed_attributes")
+          send(field_name)
+          if send(:sattr_change_set)[field_name.to_s] == field_value
+            changed_attributes.delete(field_name.to_s)
+          else
+            changed_attributes[field_name.to_s] = send(:sattr_change_set)[field_name.to_s]
+          end
+        end
+
         unserialized_options(fetch_parent_attribute(field_name)).merge!(field_name => field_value)
         field_value
       end
