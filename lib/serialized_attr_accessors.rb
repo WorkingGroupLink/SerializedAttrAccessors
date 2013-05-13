@@ -14,9 +14,14 @@ module SerializedAttrAccessors
       end
     end
 
+    #Book keeping of any value changed for any sattr
+    def sattr_change_set
+      @attr_change_set ||= {}
+    end
+
     #Re-sets sattr_change_set
     def reset_sattr_change_set
-      self.sattr_change_set.clear if self.respond_to?(:sattr_change_set)
+      self.sattr_change_set.clear
     end
 
     base.send(:before_validation, :populate_serialized_attributes)
@@ -63,11 +68,6 @@ module SerializedAttrAccessors
 
       #If attributes are not serialized then here is serialization done
       self.serialize(current_serialized_attr) unless self.serialized_attributes.keys.include?(current_serialized_attr.to_s)
-
-      #Book keeping of any value changed for any sattr
-      define_method :sattr_change_set do
-        @attr_change_set ||= {}
-      end
 
       #Defining method to fetch serialzed parent attribute (gives last found)
       define_method :fetch_parent_attribute do |filed_name|
