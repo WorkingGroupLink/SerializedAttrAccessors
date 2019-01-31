@@ -14,12 +14,12 @@ module SerializedAttrAccessors
       end
     end
 
-    #Book keeping of any value changed for any sattr
+    # Book keeping of any value changed for any sattr
     def sattr_change_set
       @attr_change_set ||= {}
     end
 
-    #Re-sets sattr_change_set
+    # Re-sets sattr_change_set
     def reset_sattr_change_set
       self.sattr_change_set.clear
     end
@@ -33,18 +33,18 @@ module SerializedAttrAccessors
       [:integer, :string, :boolean]
     end
 
-    #Stores list of attributes serialized
+    # Stores list of attributes serialized
     def serialized_attribute_list
       @@parent_attribute_list ||= {:serialized_options => []}
     end
 
-    #Gets serialized attribute currenly in use
+    # Gets serialized attribute currenly in use
     def current_serialized_attr
       @@curr_ser_attr ||= serialized_attribute_list.keys.first
     end
 
-    #Generates getter and setter method with field_name (datatype and) default_value (if provided else nil)
-    #Example:
+    # Generates getter and setter method with field_name (datatype and) default_value (if provided else nil)
+    # Example:
     # sattr_accessor :name, :string, "some name"
     # sattr_accessor :roll_no, :integer, 111
     # sattr_accessor :is_admin, :boolean, true
@@ -66,10 +66,10 @@ module SerializedAttrAccessors
       serialized_attribute_list[current_serialized_attr] ||= []
       serialized_attribute_list[current_serialized_attr] << field_name
 
-      #If attributes are not serialized then here is serialization done
+      # If attributes are not serialized then here is serialization done
       self.serialize(current_serialized_attr) unless self.serialized_attributes.keys.include?(current_serialized_attr.to_s)
 
-      #Defining method to fetch serialzed parent attribute (gives last found)
+      # Defining method to fetch serialzed parent attribute (gives last found)
       define_method :fetch_parent_attribute do |filed_name|
         parent_attr = nil
         self.class.serialized_attribute_list.each do |attr_key, fields_val|
@@ -83,20 +83,20 @@ module SerializedAttrAccessors
         field_value = unserialized_options(fetch_parent_attribute(field_name))[field_name]
         final_value = (field_value.nil? ? default_value : field_value)
 
-        #Updates sattr_change_set if field_name is not already present in it
+        # Updates sattr_change_set if field_name is not already present in it
         send(:sattr_change_set)[field_name.to_s] = final_value unless send(:sattr_change_set).include?(field_name.to_s)
         final_value
       end
 
       define_method "#{field_name.to_s}=" do |field_value|
-        if datatype.nil? #If no datatype then take value as it is
+        if datatype.nil? # If no datatype then take value as it is
           field_value = field_value
-        elsif datatype == :integer #If integer then convert to integer and also accept nil
+        elsif datatype == :integer # If integer then convert to integer and also accept nil
           field_value = field_value.to_i unless field_value.nil?
-        elsif datatype == :string #If string then convert to string and also accept nil
+        elsif datatype == :string # If string then convert to string and also accept nil
           field_value = field_value.to_s unless field_value.nil?
-        elsif datatype == :boolean #If boolean then convert to true or false and also accept nil
-          unless  field_value.nil?
+        elsif datatype == :boolean # If boolean then convert to true or false and also accept nil
+          unless field_value.nil?
             if [true, false].include?(field_value)
               field_value = field_value
             elsif (field_value.is_a?(Fixnum) or field_value.is_a?(Bignum)) #Todo: Use a regexp instead
@@ -118,7 +118,7 @@ module SerializedAttrAccessors
           end
         end
 
-        #Recording sattr value if it is able to respond to ActiveModel::Dirty's changed_attributes
+        # Recording sattr value if it is able to respond to ActiveModel::Dirty's changed_attributes
         if send("respond_to?", "changed_attributes")
           send(field_name)
           if send(:sattr_change_set)[field_name.to_s] == field_value
@@ -133,11 +133,15 @@ module SerializedAttrAccessors
       end
     end
 
-    #for_serialized_field :workspaces do
-    #  sattr_accessor(:wfield_one, "Some String One")
-    #  sattr_accessor(:wfield_two, {})
-    #  sattr_accessor(:wfield_three, [])
-    #end
+    # Implements column re-naming to something different from: 'serialized_options'
+    ###
+    # To use a column named "workspaces":
+    #
+    # for_serialized_field :workspaces do
+    #   sattr_accessor(:wfield_one, "Some String One")
+    #   sattr_accessor(:wfield_two, {})
+    #   sattr_accessor(:wfield_three, [])
+    # end
     def for_serialized_field(fieldname)
       if block_given?
         @@curr_ser_attr = fieldname
