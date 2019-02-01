@@ -124,7 +124,11 @@ module SerializedAttrAccessors
           if send(:sattr_change_set)[field_name.to_s] == field_value
             changed_attributes.delete(field_name.to_s)
           else
-            changed_attributes[field_name.to_s] = send(:sattr_change_set)[field_name.to_s]
+            # ActiveRecord:Dirty 4.2+: `changed_attributes` is frozen
+            # Dupe & replace to continue functionality support
+            # But ... TO-DO: Should replace this gem && `sattr_accessor` BEFORE Rails 5!
+            @changed_attributes = changed_attributes.dup
+            @changed_attributes[field_name.to_s] = send(:sattr_change_set)[field_name.to_s]
           end
         end
 
