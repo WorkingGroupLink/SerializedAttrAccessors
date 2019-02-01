@@ -1,3 +1,7 @@
+# DON'T USE THIS! Serialized column(s) replaced in Rails5
+# Plus, it's not 1984, we don't need to consolidate columns
+#
+# SerializedAttrAccessors generates multiple attr_accessors in a Rails mode. Consolidates them to a single, serialized column per-model
 module SerializedAttrAccessors
 
   def self.included(base)
@@ -122,11 +126,15 @@ module SerializedAttrAccessors
         if send("respond_to?", "changed_attributes")
           send(field_name)
           if send(:sattr_change_set)[field_name.to_s] == field_value
-            changed_attributes.delete(field_name.to_s)
-          else
+            # !!! TO-DO, mbijon: Should replace this gem && `sattr_accessor` BEFORE Rails 5!
             # ActiveRecord:Dirty 4.2+: `changed_attributes` is frozen
             # Dupe & replace to continue functionality support
-            # But ... TO-DO: Should replace this gem && `sattr_accessor` BEFORE Rails 5!
+            @changed_attributes = changed_attributes.dup
+            @changed_attributes.delete(field_name.to_s)
+          else
+              # !!! TO-DO, mbijon: Should replace this gem && `sattr_accessor` BEFORE Rails 5!
+              # ActiveRecord:Dirty 4.2+: `changed_attributes` is frozen
+              # Dupe & replace to continue functionality support
             @changed_attributes = changed_attributes.dup
             @changed_attributes[field_name.to_s] = send(:sattr_change_set)[field_name.to_s]
           end

@@ -1,9 +1,9 @@
 SerializedAttrAccessors
 =======================
 
-This gem extends ActiveRecord to consolidate multiple `sattr_accessor` values to a single RDB column.
+# Do NOT use this: Tweaked to get working in Rails 4.2, but Rails5 will REMOVE `sattr_accessor`
 
-**TO-DO: Do NOT use this: Tweaked to get working in Rails 4.2, but Rails5 will REMOVE `sattr_accessor`**
+This gem extends ActiveRecord to consolidate multiple `sattr_accessor` values to a single RDB column.
 
 ...let's be honest though, this is a #reallybadidea. It prevents using SQL `WHERE` to filter data & confuses most (ALL) analysis & ML-from-RDBBMS packages. The ONLY reasons to use this gem are if your host charges per-column (it wastes storage GB, BTW), or you really like the idea of Doc DB's but really want to run MySQL anyway...
 
