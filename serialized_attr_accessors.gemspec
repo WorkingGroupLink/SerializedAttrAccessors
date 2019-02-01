@@ -7,5 +7,5 @@ Gem::Specification.new do |s|
   s.authors = ["Praveen Kumar Sinha", "Mike Bijon"]
   s.email = ["praveen.kumar.sinha@gmail.com", "mikebijon@gmail.com"]
   s.files = ["lib/serialized_attr_accessors.rb"]
-  s.homepage = "http://praveenkumarsinha.github.io/SerializedAttrAccessors/"
+  s.homepage = "https://github.com/mbijon/SerializedAttrAccessors/"
 end
