@@ -74,6 +74,8 @@ module SerializedAttrAccessors
       # was calling deprecated serialized_attributes which was getting list of columns from the database
       # during rake db:schema:load on an empty database
       # self.serialize(current_serialized_attr) unless self.serialized_attributes.keys.include?(current_serialized_attr.to_s)
+      #
+      # BUT, now requires `serialize :serialized_options` in all models using this gem
 
       # Defining method to fetch serialzed parent attribute (gives last found)
       define_method :fetch_parent_attribute do |filed_name|
