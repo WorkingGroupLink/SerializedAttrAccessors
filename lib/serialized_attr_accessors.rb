@@ -71,7 +71,9 @@ module SerializedAttrAccessors
       serialized_attribute_list[current_serialized_attr] << field_name
 
       # If attributes are not serialized then here is serialization done
-      self.serialize(current_serialized_attr) unless self.serialized_attributes.keys.include?(current_serialized_attr.to_s)
+      # was calling deprecated serialized_attributes which was getting list of columns from the database
+      # during rake db:schema:load on an empty database
+      # self.serialize(current_serialized_attr) unless self.serialized_attributes.keys.include?(current_serialized_attr.to_s)
 
       # Defining method to fetch serialzed parent attribute (gives last found)
       define_method :fetch_parent_attribute do |filed_name|
