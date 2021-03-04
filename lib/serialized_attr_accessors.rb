@@ -105,8 +105,8 @@ module SerializedAttrAccessors
           unless field_value.nil?
             if [true, false].include?(field_value)
               field_value = field_value
-            elsif (field_value.is_a?(Fixnum) or field_value.is_a?(Bignum)) #Todo: Use a regexp instead
-              field_value = ((field_value.to_i <= 0) ? false : true)
+            elsif field_value.is_a?(Integer)
+              field_value = field_value > 0
             elsif field_value.is_a?(String)
               temp_f = field_value.downcase.strip
               field_value = if temp_f == "false"
